@@ -1,6 +1,7 @@
 # Ignorar archivos de compilación
 bin/
 obj/
+.vs/
 
 # Ignorar archivos de configuración específicos de tu entorno
 appsettings.Development.json
@@ -17,7 +18,7 @@ appsettings.Development.json
 [Tt]humbs.db
 *.log
 *.logs
-*.vscode/
+*.vscode
 
 # Ignorar archivos de compilación de ReSharper
 _ReSharper*/
