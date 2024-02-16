@@ -1,6 +1,9 @@
 using Application.Interfaces;
 using Domain.Entities;
+using InfraEstructure.Persistence;
 using InfraEstructure.Service;
+using InfraEstructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
@@ -29,22 +32,24 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Cargar la configuración desde appsettings.Development.json
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .Build();
+
+var connectionString = configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString), ServiceLifetime.Singleton);
 
 builder.Configuration.AddConfiguration(configuration);
 
-// Obtener la configuración de RabbitMQ
 var rabbitMQConfig = configuration.GetSection("RabbitMQConfig").Get<RabbitMQConfig>();
-// Registrar el servicio de RabbitMQ con la configuración proporcionada
+
 builder.Services.AddSingleton<IMessageService>(new MessageService(rabbitMQConfig.HostName, rabbitMQConfig.QueueName));
+builder.Services.AddSingleton<IContextMgmt, ContextMgmt>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
